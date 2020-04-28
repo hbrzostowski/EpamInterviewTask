@@ -22,24 +22,17 @@
 
 namespace Ocaramba
 {
+    using NLog;
+    using Ocaramba.Types;
     using System;
     using System.Globalization;
-
-    using NLog;
-
-    using Ocaramba.Types;
 
     /// <summary>
     /// Class for assert without stop tests <see href="https://github.com/ObjectivityLtd/Ocaramba/wiki/Verify-asserts-without-stop-tests">More details on wiki</see>.
     /// </summary>
     public static class Verify
     {
-#if net47 || net45
-        private static readonly NLog.Logger Logger = LogManager.GetCurrentClassLogger();
-#endif
-#if netcoreapp3_1
-        private static readonly NLog.Logger Logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
-#endif
+        private static readonly ILogger Logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
 
         /// <summary>
         /// Verify group of assets.

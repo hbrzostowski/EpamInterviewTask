@@ -113,13 +113,6 @@ namespace Ocaramba
         public string[] TakeAndSaveScreenshot()
         {
             List<string> filePaths = new List<string>();
-            if (BaseConfiguration.FullDesktopScreenShotEnabled)
-            {
-                // to do TakeScreenShot
-#if net47 || net45
-                filePaths.Add(TakeScreenShot.Save(TakeScreenShot.DoIt(), ImageFormat.Png, this.ScreenShotFolder, this.TestTitle));
-#endif
-            }
 
             if (BaseConfiguration.SeleniumScreenShotEnabled)
             {
@@ -127,43 +120,6 @@ namespace Ocaramba
             }
 
             return filePaths.ToArray();
-        }
-
-        /// <summary>
-        /// Logs JavaScript errors.
-        /// </summary>
-        /// <returns>True if JavaScript errors found.</returns>
-        public bool LogJavaScriptErrors()
-        {
-            IEnumerable<LogEntry> jsErrors = null;
-            bool javScriptErrors = false;
-
-            // Check JavaScript browser logs for errors.
-            if (BaseConfiguration.JavaScriptErrorLogging)
-            {
-                Logger.Debug(CultureInfo.CurrentCulture, "Checking JavaScript error(s) in browser");
-                try
-                {
-                    jsErrors =
-                        this.driver.Manage()
-                            .Logs.GetLog(LogType.Browser)
-                            .Where(x => BaseConfiguration.JavaScriptErrorTypes.Any(e => x.Message.Contains(e)));
-                }
-                catch (NullReferenceException)
-                {
-                    Logger.Error(CultureInfo.CurrentCulture, "NullReferenceException while trying to read JavaScript errors from browser.");
-                    return false;
-                }
-
-                if (jsErrors.Any())
-                {
-                    // Show JavaScript errors if there are any
-                    Logger.Error(CultureInfo.CurrentCulture, "JavaScript error(s): {0}", Environment.NewLine + jsErrors.Aggregate(string.Empty, (s, entry) => s + entry.Message + Environment.NewLine));
-                    javScriptErrors = true;
-                }
-            }
-
-            return javScriptErrors;
         }
 
         /// <summary>
@@ -179,27 +135,6 @@ namespace Ocaramba
         {
             this.DriverOptionsSet?.Invoke(this, new DriverOptionsSetEventArgs(options));
             return options;
-        }
-
-        private Proxy CurrentProxy()
-        {
-            Proxy proxy = new Proxy
-            {
-                HttpProxy = BaseConfiguration.HttpProxy ?? BaseConfiguration.Proxy,
-                FtpProxy = BaseConfiguration.FtpProxy ?? BaseConfiguration.Proxy,
-                SslProxy = BaseConfiguration.SslProxy ?? BaseConfiguration.Proxy,
-                SocksProxy = BaseConfiguration.SocksProxy ?? BaseConfiguration.Proxy,
-            };
-            return proxy;
-         }
-
-        private void CheckIfProxySetForSafari()
-        {
-            // set browser proxy for Safari
-            if (!string.IsNullOrEmpty(BaseConfiguration.Proxy))
-            {
-                throw new NotSupportedException("Use command line to setup proxy");
-            }
         }
 
         private FirefoxOptions AddFirefoxArguments(FirefoxOptions option)
@@ -224,189 +159,6 @@ namespace Ocaramba
             }
 
             return option;
-        }
-
-        // Merthod for safari, iphone and  edge (before webkit)
-        private T SetRemoteDriverOptions<T>(NameValueCollection driverCapabilitiesConf, NameValueCollection settings, T options)
-            where T : DriverOptions
-        {
-            // if there are any capability
-            if (driverCapabilitiesConf != null)
-            {
-                // loop through all of them
-                for (var i = 0; i < driverCapabilitiesConf.Count; i++)
-                {
-                    string value = driverCapabilitiesConf.GetValues(i)[0];
-                    Logger.Trace(CultureInfo.CurrentCulture, "Adding driver capability {0}", driverCapabilitiesConf.GetKey(i));
-                    options.AddAdditionalCapability(driverCapabilitiesConf.GetKey(i), value);
-                }
-            }
-
-            var setName = false;
-
-            // if there are any capability
-            if (settings != null)
-            {
-                foreach (string key in settings.AllKeys)
-                {
-                    if (key == "name" && !string.IsNullOrEmpty(this.TestTitle))
-                    {
-                        options.AddAdditionalCapability(key, this.TestTitle);
-                        setName = true;
-                    }
-                    else
-                    {
-                        Logger.Trace(CultureInfo.CurrentCulture, "Adding driver capability {0} from {1}", key, this.CrossBrowserEnvironment);
-
-                        options.AddAdditionalCapability(key, settings[key]);
-                    }
-                }
-            }
-
-            if (!setName && !string.IsNullOrEmpty(this.TestTitle))
-            {
-                options.AddAdditionalCapability("name", this.TestTitle);
-            }
-
-            return options;
-        }
-
-        private BrowserType GetBrowserTypeForRemoteDriver(NameValueCollection settings)
-        {
-            if (BaseConfiguration.TestBrowserCapabilities != BrowserType.CloudProvider)
-            {
-                return BaseConfiguration.TestBrowserCapabilities;
-            }
-
-            BrowserType browserType = BrowserType.None;
-            bool supportedBrowser = false;
-            if (settings != null)
-            {
-                string browser = settings.GetValues("browser")?[0];
-                supportedBrowser = Enum.TryParse(browser, true, out browserType);
-                Logger.Info(CultureInfo.CurrentCulture, "supportedBrowser {0} : {1}", supportedBrowser, browserType);
-            }
-
-            if (!supportedBrowser)
-            {
-                if (this.CrossBrowserEnvironment.ToLower(CultureInfo.CurrentCulture).Contains(BrowserType.Android.ToString().ToLower(CultureInfo.CurrentCulture)))
-                {
-                    browserType = BrowserType.Chrome;
-                }
-                else if (this.CrossBrowserEnvironment.ToLower(CultureInfo.CurrentCulture).Contains(BrowserType.Iphone.ToString().ToLower(CultureInfo.CurrentCulture)))
-                {
-                    browserType = BrowserType.Safari;
-                }
-            }
-
-            return browserType;
-        }
-
-        // Used by firefox , chrome,  androdin, internet explorer
-        private void SetRemoteDriverBrowserOptions(NameValueCollection driverCapabilitiesConf, NameValueCollection settings, dynamic browserOptions)
-        {
-            // if there are any capability
-            if (driverCapabilitiesConf != null)
-            {
-                // loop through all of them
-                for (var i = 0; i < driverCapabilitiesConf.Count; i++)
-                {
-                    string value = driverCapabilitiesConf.GetValues(i)[0];
-                    Logger.Trace(CultureInfo.CurrentCulture, "Adding driver capability {0}", driverCapabilitiesConf.GetKey(i));
-                    browserOptions.AddAdditionalCapability(driverCapabilitiesConf.GetKey(i), value, true);
-                }
-            }
-
-            var setName = false;
-
-            // if there are any capability
-            if (settings != null)
-            {
-                foreach (string key in settings.AllKeys)
-                {
-                    if (key == "name" && !string.IsNullOrEmpty(this.TestTitle))
-                    {
-                        browserOptions.AddAdditionalCapability(key, this.TestTitle, true);
-                        setName = true;
-                    }
-                    else
-                    {
-                        Logger.Trace(CultureInfo.CurrentCulture, "Adding driver capability {0} from {1}", key, this.CrossBrowserEnvironment);
-                        browserOptions.AddAdditionalCapability(key, settings[key], true);
-                    }
-                }
-            }
-
-            if (!setName && !string.IsNullOrEmpty(this.TestTitle))
-            {
-                browserOptions.AddAdditionalCapability("name", this.TestTitle);
-            }
-        }
-
-        [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity", Justification = "Loop through all internetExplorerPreferences")]
-        private void GetInternetExplorerPreferences(NameValueCollection internetExplorerPreferences, InternetExplorerOptions options)
-        {
-            // loop through all of them
-            for (var i = 0; i < internetExplorerPreferences.Count; i++)
-            {
-                Logger.Trace(CultureInfo.CurrentCulture, "Set custom preference '{0},{1}'", internetExplorerPreferences.GetKey(i), internetExplorerPreferences[i]);
-
-                // and verify all of them
-                switch (internetExplorerPreferences.GetKey(i))
-                {
-                    case "EnsureCleanSession":
-                        options.EnsureCleanSession = Convert.ToBoolean(internetExplorerPreferences[i], CultureInfo.CurrentCulture);
-                        break;
-
-                    case "IgnoreZoomLevel":
-                        options.IgnoreZoomLevel = Convert.ToBoolean(internetExplorerPreferences[i], CultureInfo.CurrentCulture);
-                        break;
-
-                    case "EnablePersistentHover":
-                        options.EnablePersistentHover = Convert.ToBoolean(internetExplorerPreferences[i], CultureInfo.CurrentCulture);
-                        break;
-
-                    case "IntroduceInstabilityByIgnoringProtectedModeSettings":
-                        options.IntroduceInstabilityByIgnoringProtectedModeSettings = Convert.ToBoolean(internetExplorerPreferences[i], CultureInfo.CurrentCulture);
-                        break;
-
-                    case "BrowserCommandLineArguments":
-                        options.BrowserCommandLineArguments = Convert.ToString(internetExplorerPreferences[i], CultureInfo.CurrentCulture);
-                        break;
-
-                    case "EnableNativeEvents":
-                        options.EnableNativeEvents = Convert.ToBoolean(internetExplorerPreferences[i], CultureInfo.CurrentCulture);
-                        break;
-
-                    case "RequireWindowFocus":
-                        options.RequireWindowFocus = Convert.ToBoolean(internetExplorerPreferences[i], CultureInfo.CurrentCulture);
-                        break;
-
-                    case "InitialBrowserUrl":
-                        options.InitialBrowserUrl = Convert.ToString(internetExplorerPreferences[i], CultureInfo.CurrentCulture);
-                        break;
-
-                    case "BrowserAttachTimeout":
-                        options.BrowserAttachTimeout = TimeSpan.FromSeconds(Convert.ToDouble(internetExplorerPreferences[i], CultureInfo.CurrentCulture));
-                        break;
-
-                    case "ForceCreateProcessApi":
-                        options.ForceCreateProcessApi = Convert.ToBoolean(internetExplorerPreferences[i], CultureInfo.CurrentCulture);
-                        break;
-
-                    case "ForceShellWindowsApi":
-                        options.ForceShellWindowsApi = Convert.ToBoolean(internetExplorerPreferences[i], CultureInfo.CurrentCulture);
-                        break;
-
-                    case "UsePerProcessProxy":
-                        options.UsePerProcessProxy = Convert.ToBoolean(internetExplorerPreferences[i], CultureInfo.CurrentCulture);
-                        break;
-
-                    case "FileUploadDialogTimeout":
-                        options.FileUploadDialogTimeout = TimeSpan.FromSeconds(Convert.ToDouble(internetExplorerPreferences[i], CultureInfo.CurrentCulture));
-                        break;
-                }
-            }
         }
 
         private string GetBrowserDriversFolder(string folder)

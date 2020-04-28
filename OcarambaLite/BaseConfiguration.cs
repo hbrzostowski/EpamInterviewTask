@@ -22,17 +22,13 @@
 
 namespace Ocaramba
 {
-    using System.Collections.Generic;
-    using System.Collections.Specialized;
-#if netcoreapp3_1
     using Microsoft.Extensions.Configuration;
-#endif
-    using System;
-    using System.Collections.ObjectModel;
-    using System.Configuration;
-    using System.Globalization;
     using NLog;
-    using Ocaramba;
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Collections.Specialized;
+    using System.Globalization;
 
     /// <summary>
     /// SeleniumConfiguration that consume settings file file <see href="https://github.com/ObjectivityLtd/Ocaramba/wiki/Description%20of%20settings file%20file">More details on wiki</see>.
@@ -42,10 +38,6 @@ namespace Ocaramba
         /// <summary>
         /// The logger.
         /// </summary>
-#if net47 || net45
-        private static readonly NLog.Logger Logger = LogManager.GetCurrentClassLogger();
-#endif
-#if netcoreapp3_1
         public static readonly string Env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
         /// <summary>
@@ -56,8 +48,7 @@ namespace Ocaramba
             .AddJsonFile($"appsettings.{Env}.json", true, true)
             .Build();
 
-        private static readonly NLog.Logger Logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
-#endif
+        private static readonly ILogger Logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
 
         /// <summary>
         /// Gets the Driver.
@@ -72,45 +63,10 @@ namespace Ocaramba
         {
             get
             {
-                bool supportedBrowser = false;
-                string setting = null;
-#if netcoreapp3_1
-                setting = Builder["appSettings:browser"];
-#endif
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["browser"];
+                string setting = Builder["appSettings:browser"];
 
-#endif
                 Logger.Trace(CultureInfo.CurrentCulture, "Browser value from settings file '{0}'", setting);
-                supportedBrowser = Enum.TryParse(setting, out BrowserType browserType);
-                if (supportedBrowser)
-                {
-                    return browserType;
-                }
-
-                return BrowserType.None;
-            }
-        }
-
-        /// <summary>
-        /// Gets the Driver capabilities.
-        /// </summary>
-        public static BrowserType TestBrowserCapabilities
-        {
-            get
-            {
-                bool supportedBrowser = false;
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["DriverCapabilities"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:DriverCapabilities"];
-#endif
-
-                Logger.Trace(CultureInfo.CurrentCulture, "Driver Capabilities value from settings file '{0}'", setting);
-
-                supportedBrowser = Enum.TryParse(setting, out BrowserType browserType);
+                bool supportedBrowser = Enum.TryParse(setting, out BrowserType browserType);
                 if (supportedBrowser)
                 {
                     return browserType;
@@ -127,12 +83,8 @@ namespace Ocaramba
         {
             get
             {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["PathToFirefoxProfile"];
-#elif netcoreapp3_1
-                setting = Builder["appSettings:PathToFirefoxProfile"];
-#endif
+                string setting = Builder["appSettings:PathToFirefoxProfile"];
+
                 Logger.Trace(CultureInfo.CurrentCulture, "Gets the path to firefox profile from settings file '{0}'", setting);
                 if (string.IsNullOrEmpty(setting))
                 {
@@ -150,13 +102,8 @@ namespace Ocaramba
         {
             get
             {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["protocol"];
-#endif
-#if  netcoreapp3_1
-                setting = Builder["appSettings:protocol"];
-#endif
+                string setting = Builder["appSettings:protocol"];
+
                 Logger.Trace(CultureInfo.CurrentCulture, "Gets the protocol from settings file '{0}'", setting);
                 return setting;
             }
@@ -169,13 +116,8 @@ namespace Ocaramba
         {
             get
             {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["host"];
-#endif
-#if  netcoreapp3_1
-                setting = Builder["appSettings:host"];
-#endif
+                string setting = Builder["appSettings:host"];
+
                 Logger.Trace(CultureInfo.CurrentCulture, "Gets the protocol from settings file '{0}'", setting);
                 return setting;
             }
@@ -188,166 +130,9 @@ namespace Ocaramba
         {
             get
             {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["url"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:url"];
-#endif
+                string setting = Builder["appSettings:url"];
+
                 Logger.Trace(CultureInfo.CurrentCulture, "Gets the url from settings file '{0}'", setting);
-                return setting;
-            }
-        }
-
-        /// <summary>
-        /// Gets the browser proxy.
-        /// </summary>
-        public static string Proxy
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["proxy"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:proxy"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Gets the url from settings file '{0}'", setting);
-                return setting;
-            }
-        }
-
-        /// <summary>
-        /// Gets the http proxy.
-        /// </summary>
-        public static string HttpProxy
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["httpProxy"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:httpProxy"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Gets the httpProxy from settings file '{0}'", setting);
-                return setting;
-            }
-        }
-
-        /// <summary>
-        /// Gets the ftp proxy.
-        /// </summary>
-        public static string FtpProxy
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["ftpProxy"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:ftpProxy"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Gets the ftpProxy from settings file '{0}'", setting);
-                return setting;
-            }
-        }
-
-        /// <summary>
-        /// Gets the ssl proxy.
-        /// </summary>
-        public static string SslProxy
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["sslProxy"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:sslProxy"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Gets the sslProxy from settings file '{0}'", setting);
-                return setting;
-            }
-        }
-
-        /// <summary>
-        /// Gets the socket proxy.
-        /// </summary>
-        public static string SocksProxy
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["socksproxy"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:socksproxy"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Gets the socksproxy from settings file '{0}'", setting);
-                return setting;
-            }
-        }
-
-        /// <summary>
-        /// Gets time used by remote web driver to wait for connection.
-        /// </summary>
-        public static TimeSpan RemoteWebDriverTimeout
-        {
-            get
-            {
-                int setting = 0;
-#if net47 || net45
-                setting = int.Parse(ConfigurationManager.AppSettings["remoteTimeout"], CultureInfo.InvariantCulture);
-#endif
-#if netcoreapp3_1
-                setting = int.Parse(Builder["appSettings:remoteTimeout"], CultureInfo.InvariantCulture);
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Gets the remote timeout from settings file '{0}'", setting);
-                return new TimeSpan(0, 0, setting);
-            }
-        }
-
-        /// <summary>
-        /// Gets the username.
-        /// </summary>
-        public static string Username
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["username"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:username"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Gets the username from settings file '{0}'", setting);
-                return setting;
-            }
-        }
-
-        /// <summary>
-        /// Gets the password.
-        /// </summary>
-        public static string Password
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["password"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:password"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Gets the password from settings file '{0}'", setting);
                 return setting;
             }
         }
@@ -362,13 +147,8 @@ namespace Ocaramba
         {
             get
             {
-                double setting;
-#if net47 || net45
-                setting = Convert.ToDouble(ConfigurationManager.AppSettings["mediumTimeout"], CultureInfo.CurrentCulture);
-#endif
-#if netcoreapp3_1
-                setting = Convert.ToDouble(Builder["appSettings:mediumTimeout"]);
-#endif
+                double setting = Convert.ToDouble(Builder["appSettings:mediumTimeout"]);
+
                 Logger.Trace(CultureInfo.CurrentCulture, "Gets the mediumTimeout from settings file '{0}'", setting);
                 return setting;
             }
@@ -384,13 +164,8 @@ namespace Ocaramba
         {
             get
             {
-                double setting;
-#if net47 || net45
-                setting = Convert.ToDouble(ConfigurationManager.AppSettings["longTimeout"], CultureInfo.CurrentCulture);
-#endif
-#if netcoreapp3_1
-                setting = Convert.ToDouble(Builder["appSettings:longTimeout"]);
-#endif
+                double setting = Convert.ToDouble(Builder["appSettings:longTimeout"]);
+
                 Logger.Trace(CultureInfo.CurrentCulture, "Gets the longTimeout from settings file '{0}'", setting);
                 return setting;
             }
@@ -406,421 +181,10 @@ namespace Ocaramba
         {
             get
             {
-                double setting;
-#if net47 || net45
-                setting = Convert.ToDouble(ConfigurationManager.AppSettings["shortTimeout"], CultureInfo.CurrentCulture);
-#endif
-#if netcoreapp3_1
-                setting = Convert.ToDouble(Builder["appSettings:shortTimeout"]);
-#endif
+                double setting = Convert.ToDouble(Builder["appSettings:shortTimeout"]);
+
                 Logger.Trace(CultureInfo.CurrentCulture, "Gets the shortTimeout from settings file '{0}'", setting);
                 return setting;
-            }
-        }
-
-        /// <summary>
-        /// Gets the Implicitly Wait time [milliseconds].
-        /// </summary>
-        public static double ImplicitlyWaitMilliseconds
-        {
-            get
-            {
-                double setting;
-#if net47 || net45
-                setting = Convert.ToDouble(ConfigurationManager.AppSettings["ImplicitlyWaitMilliseconds"], CultureInfo.CurrentCulture);
-#endif
-#if netcoreapp3_1
-                setting = Convert.ToDouble(Builder["appSettings:ImplicitlyWaitMilliseconds"]);
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Gets the ImplicitlyWaitMilliseconds from settings file '{0}'", setting);
-                return setting;
-            }
-        }
-
-        /// <summary>
-        /// Gets the path and file name of the Firefox browser executable.
-        /// </summary>
-        public static string FirefoxBrowserExecutableLocation
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["FirefoxBrowserExecutableLocation"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:FirefoxBrowserExecutableLocation"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Gets the path and file name of the Firefox browser executable from settings file '{0}'", setting);
-                if (string.IsNullOrEmpty(setting))
-                {
-                    return string.Empty;
-                }
-
-                return setting;
-            }
-        }
-
-        /// <summary>
-        /// Gets the path and file name of the Edge Chrominium browser executable. Default value "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe".
-        /// </summary>
-        public static string EdgeChrominiumBrowserExecutableLocation
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["EdgeChrominiumBrowserExecutableLocation"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:EdgeChrominiumBrowserExecutableLocation"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Gets the path and file name of the Edge Chrominium browser executable from settings file '{0}'", setting);
-                if (string.IsNullOrEmpty(setting))
-                {
-                    return @"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe";
-                }
-
-                return setting;
-            }
-        }
-
-        /// <summary>
-        /// Gets the path and file name of the Chrome browser executable.
-        /// </summary>
-        public static string ChromeBrowserExecutableLocation
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["ChromeBrowserExecutableLocation"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:ChromeBrowserExecutableLocation"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Gets the path and file name of the Chrome browser executable from settings file '{0}'", setting);
-                if (string.IsNullOrEmpty(setting))
-                {
-                    return string.Empty;
-                }
-
-                return setting;
-            }
-        }
-
-        /// <summary>
-        /// Gets the Remote Web Driver hub url.
-        /// </summary>
-        public static Uri RemoteWebDriverHub
-        {
-            get
-            {
-                string setting = null;
-
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["RemoteWebDriverHub"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:RemoteWebDriverHub"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "RemoteWebDriverHub from settings file '{0}'", setting);
-                return new Uri(setting);
-            }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether enable full desktop screen shot. False by default.
-        /// </summary>
-        public static bool FullDesktopScreenShotEnabled
-        {
-            get
-            {
-#if net47 || net45
-                Logger.Trace(
-                    CultureInfo.CurrentCulture,
-                    "Full Desktop Screen Shot Enabled value from App.config '{0}'",
-                    ConfigurationManager.AppSettings["FullDesktopScreenShotEnabled"]);
-                if (string.IsNullOrEmpty(ConfigurationManager.AppSettings["FullDesktopScreenShotEnabled"]))
-                {
-                    return false;
-                }
-
-                if (ConfigurationManager.AppSettings["FullDesktopScreenShotEnabled"].ToLower(CultureInfo.CurrentCulture)
-                    .Equals("true"))
-                {
-                    return true;
-                }
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Full Desktop Screen Shot not supported in .NET Core 'false'");
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Gets specified path to the file of Chrome driver log. "C:\\Temp\\chromedriver.log" by Default.
-        /// </summary>
-        public static string PathToChromeDriverLog
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["PathToChromeDriverLog"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:PathToChromeDriverLog"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Gets the PathToChromeDriverLog from settings file '{0}'", setting);
-                if (string.IsNullOrEmpty(setting))
-                {
-                    return "C:\\Temp\\chromedriver.log";
-                }
-
-                return setting;
-            }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether enable verbose logging for Chrome. False by default.
-        /// </summary>
-        public static bool EnableVerboseLoggingChrome
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["EnableVerboseLoggingChrome"];
-#endif
-#if  netcoreapp3_1
-                setting = Builder["appSettings:EnableVerboseLoggingChrome"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Verbose logging for Chrome value from settings file '{0}'", setting);
-                if (string.IsNullOrEmpty(setting))
-                {
-                    return false;
-                }
-
-                if (setting.ToLower(CultureInfo.CurrentCulture).Equals("true"))
-                {
-                    return true;
-                }
-
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Gets specified path to the directory containing InternetExplorer Driver.
-        /// </summary>
-        public static string PathToInternetExplorerDriverDirectory
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["PathToInternetExplorerDriverDirectory"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:PathToInternetExplorerDriverDirectory"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Gets the PathToInternetExplorerDriverDirectory from settings file '{0}'", setting);
-                if (string.IsNullOrEmpty(setting))
-                {
-                    return string.Empty;
-                }
-
-                return setting;
-            }
-        }
-
-        /// <summary>
-        /// Gets specified path to the directory containing Edge Chrominum Driver, name of driver msedgedriver.exe. Default value "C:\Temp\Drivers".
-        /// </summary>
-        public static string PathToEdgeChrominumDriverDirectory
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["PathToEdgeChrominumDriverDirectory"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:PathToEdgeChrominumDriverDirectory"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Gets the PathToEdgeChrominumDriverDirectory from settings file '{0}'", setting);
-                if (string.IsNullOrEmpty(setting))
-                {
-                    return @"C:\Temp\Drivers";
-                }
-
-                return setting;
-            }
-        }
-
-        /// <summary>
-        /// Gets specified path to the directory containing Edge Driver.
-        /// </summary>
-        public static string PathToEdgeDriverDirectory
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["PathToEdgeDriverDirectory"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:PathToEdgeDriverDirectory"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Gets the PathToEdgeDriverDirectory from settings file '{0}'", setting);
-                if (string.IsNullOrEmpty(setting))
-                {
-                    return string.Empty;
-                }
-
-                return setting;
-            }
-        }
-
-        /// <summary>
-        /// Gets specified path to the directory containing ChromeDriver.
-        /// </summary>
-        public static string PathToChromeDriverDirectory
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["PathToChromeDriverDirectory"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:PathToChromeDriverDirectory"];
-#endif
-
-                Logger.Trace(CultureInfo.CurrentCulture, "Path to the directory containing Chrome Driver from settings file '{0}'", setting);
-                if (string.IsNullOrEmpty(setting))
-                {
-                    return string.Empty;
-                }
-
-                return setting;
-            }
-        }
-
-        /// <summary>
-        /// Gets specified path to the directory containing Firefox Driver.
-        /// </summary>
-        public static string PathToFirefoxDriverDirectory
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["PathToFirefoxDriverDirectory"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:PathToFirefoxDriverDirectory"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Path to the directory containing Firefox Driver from settings file '{0}'", setting);
-                if (string.IsNullOrEmpty(setting))
-                {
-                    return string.Empty;
-                }
-
-                return setting;
-            }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether logs JavaScript errors from a browser. False by default.
-        /// </summary>
-        public static bool JavaScriptErrorLogging
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["JavaScriptErrorLogging"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:JavaScriptErrorLogging"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "JavaScript error logging value from settings file '{0}'", setting);
-                if (string.IsNullOrEmpty(setting))
-                {
-                    return false;
-                }
-
-                if (setting.ToLower(CultureInfo.CurrentCulture).Equals("true"))
-                {
-                    return true;
-                }
-
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Gets JavaScript error types from a browser. "SyntaxError,EvalError,ReferenceError,RangeError,TypeError,URIError,Refused to display,Internal Server Error,Cannot read property" by default.
-        /// </summary>
-        public static Collection<string> JavaScriptErrorTypes
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["JavaScriptErrorTypes"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:JavaScriptErrorTypes"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "JavaScript error logging value from settings file '{0}'", setting);
-                if (string.IsNullOrEmpty(setting))
-                {
-                    return new Collection<string>
-                    {
-                        "SyntaxError",
-                        "EvalError",
-                        "ReferenceError",
-                        "RangeError",
-                        "TypeError",
-                        "URIError",
-                        "Refused to display",
-                        "Internal Server Error",
-                        "Cannot read property",
-                    };
-                }
-
-                return new Collection<string>(setting.Split(new char[] { ',' }));
-            }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether enable legacy implementation for Firefox.
-        /// </summary>
-        public static bool FirefoxUseLegacyImplementation
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["FirefoxUseLegacyImplementation"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:FirefoxUseLegacyImplementation"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Firefox Use Legacy Implementation Enabled value from settings file '{0}'", setting);
-                if (string.IsNullOrEmpty(setting))
-                {
-                    return false;
-                }
-
-                if (setting.ToLower(CultureInfo.CurrentCulture).Equals("true"))
-                {
-                    return true;
-                }
-
-                return false;
             }
         }
 
@@ -831,13 +195,8 @@ namespace Ocaramba
         {
             get
             {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["SeleniumScreenShotEnabled"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:SeleniumScreenShotEnabled"];
-#endif
+                string setting = Builder["appSettings:SeleniumScreenShotEnabled"];
+
                 Logger.Trace(CultureInfo.CurrentCulture, "Selenium Screen Shot Enabled value from settings file '{0}'", setting);
                 if (string.IsNullOrEmpty(setting))
                 {
@@ -860,13 +219,8 @@ namespace Ocaramba
         {
             get
             {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["EnableEventFiringWebDriver"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:EnableEventFiringWebDriver"];
-#endif
+                string setting = Builder["appSettings:EnableEventFiringWebDriver"];
+
                 Logger.Trace(CultureInfo.CurrentCulture, "Enable EventFiringWebDriver from settings file '{0}'", setting);
                 if (string.IsNullOrEmpty(setting))
                 {
@@ -889,13 +243,8 @@ namespace Ocaramba
         {
             get
             {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["UseCurrentDirectory"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:UseCurrentDirectory"];
-#endif
+                string setting = Builder["appSettings:UseCurrentDirectory"];
+
                 Logger.Trace(CultureInfo.CurrentCulture, "Use Current Directory value from settings file '{0}'", setting);
                 if (string.IsNullOrEmpty(setting))
                 {
@@ -921,13 +270,8 @@ namespace Ocaramba
         {
             get
             {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["GetPageSourceEnabled"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:GetPageSourceEnabled"];
-#endif
+                string setting = Builder["appSettings:GetPageSourceEnabled"];
+
                 Logger.Trace(CultureInfo.CurrentCulture, "Get Page Source Enabled value from settings file '{0}'", setting);
                 if (string.IsNullOrEmpty(setting))
                 {
@@ -950,13 +294,8 @@ namespace Ocaramba
         {
             get
             {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["DownloadFolder"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:DownloadFolder"];
-#endif
+                string setting = Builder["appSettings:DownloadFolder"];
+
                 Logger.Trace(CultureInfo.CurrentCulture, "Get DownloadFolder value from settings file '{0}'", setting);
                 return setting;
             }
@@ -969,13 +308,8 @@ namespace Ocaramba
         {
             get
             {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["ScreenShotFolder"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:ScreenShotFolder"];
-#endif
+                string setting = Builder["appSettings:ScreenShotFolder"];
+
                 Logger.Trace(CultureInfo.CurrentCulture, "Get ScreenShotFolder value from settings file '{0}'", setting);
                 return setting;
             }
@@ -988,13 +322,8 @@ namespace Ocaramba
         {
             get
             {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["PageSourceFolder"];
-#endif
-#if netcoreapp3_1
-                setting = Builder["appSettings:PageSourceFolder"];
-#endif
+                string setting = Builder["appSettings:PageSourceFolder"];
+
                 Logger.Trace(CultureInfo.CurrentCulture, "Get PageSourceFolder value from settings file '{0}'", setting);
                 return setting;
             }
@@ -1014,58 +343,6 @@ namespace Ocaramba
                 return string.Format(CultureInfo.CurrentCulture, "{0}://{1}{2}", Protocol, Host, Url);
             }
         }
-
-        /// <summary>
-        /// Gets the URL value with user credentials 'Protocol://Username:Password@HostURL'.
-        /// </summary>
-        /// <example>How to use it: <code>
-        /// var url = BaseConfiguration.GetUrlValueWithUserCredentials;
-        /// </code></example>
-        public static string GetUrlValueWithUserCredentials
-        {
-            get
-            {
-                Logger.Trace(CultureInfo.CurrentCulture, "Get UrlWithUserCredentials value from settings file '{0}://{1}:{2}@{3}{4}'", Protocol, Username, Password, Host, Url);
-                return string.Format(
-                    CultureInfo.CurrentCulture,
-                    "{0}://{1}:{2}@{3}{4}",
-                    Protocol,
-                    Username,
-                    Password,
-                    Host,
-                    Url);
-            }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether enable AngularJS synchronization. False by default.
-        /// </summary>
-        public static bool SynchronizationWithAngularEnabled
-        {
-            get
-            {
-                string setting = null;
-#if net47 || net45
-                setting = ConfigurationManager.AppSettings["SynchronizationWithAngularEnabled"];
-#endif
-#if  netcoreapp3_1
-                setting = Builder["appSettings:SynchronizationWithAngularEnabled"];
-#endif
-                Logger.Trace(CultureInfo.CurrentCulture, "Angular synchronization Enabled value from settings file '{0}'", setting);
-                if (string.IsNullOrEmpty(setting))
-                {
-                    return false;
-                }
-
-                if (setting.ToLower(CultureInfo.CurrentCulture).Equals("true"))
-                {
-                    return true;
-                }
-
-                return false;
-            }
-        }
-#if  netcoreapp3_1
 
         /// <summary>
         /// Converting settings from appsettings.json into the NameValueCollection, key - value pairs.
@@ -1094,6 +371,5 @@ namespace Ocaramba
 
             return preferencesCollection;
         }
-#endif
     }
 }

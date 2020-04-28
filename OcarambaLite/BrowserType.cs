@@ -33,54 +33,9 @@ namespace Ocaramba
         Firefox,
 
         /// <summary>
-        /// InternetExplorer browser
-        /// </summary>
-        InternetExplorer,
-
-        /// <summary>
-        /// InternetExplorer browser
-        /// </summary>
-        IE,
-
-        /// <summary>
         /// Chrome browser
         /// </summary>
         Chrome,
-
-        /// <summary>
-        /// Safari browser
-        /// </summary>
-        Safari,
-
-        /// <summary>
-        /// Remote Web driver
-        /// </summary>
-        RemoteWebDriver,
-
-        /// <summary>
-        /// Edge driver
-        /// </summary>
-        Edge,
-
-        /// <summary>
-        /// Edge Chrominium driver
-        /// </summary>
-        EdgeChrominium,
-
-        /// <summary>
-        /// CloudProvider parallel cross browsers testing
-        /// </summary>
-        CloudProvider,
-
-        /// <summary>
-        /// Browser type to run test on Android with CloudProviders
-        /// </summary>
-        Android,
-
-        /// <summary>
-        /// Browser type to run test on Iphone with CloudProviders
-        /// </summary>
-        Iphone,
 
         /// <summary>
         /// Not supported browser

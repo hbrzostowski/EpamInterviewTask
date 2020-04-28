@@ -7,12 +7,7 @@ namespace Ocaramba.Tests.PageObjects.PageObjects.Global.UbsStaffMisconduct
 {
     public partial class UbsStaffMisconductPage : ProjectPageBase
     {
-#if net47 || net45
-        private static readonly NLog.Logger Logger = LogManager.GetCurrentClassLogger();
-#endif
-#if netcoreapp3_1
-        private static readonly NLog.Logger Logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
-#endif
+        private static readonly ILogger Logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
 
         public UbsStaffMisconductPage(DriverContext driverContext) : base(driverContext)
         {

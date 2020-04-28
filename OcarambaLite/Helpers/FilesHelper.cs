@@ -40,13 +40,7 @@ namespace Ocaramba.Helpers
         /// Directory separator.
         /// </summary>
         public static readonly char Separator = Path.DirectorySeparatorChar;
-
-#if net47 || net45
-        private static readonly NLog.Logger Logger = LogManager.GetCurrentClassLogger();
-#endif
-#if netcoreapp3_1
-        private static readonly NLog.Logger Logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
-#endif
+        private static readonly ILogger Logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
 
         /// <summary>
         /// Returns the file extension.

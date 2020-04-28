@@ -23,7 +23,6 @@
 namespace Ocaramba
 {
     using System.Collections.Generic;
-    using Ocaramba.Helpers;
 
     /// <summary>
     /// Class contains method for all tests, should be used in project test base.

@@ -48,12 +48,7 @@ namespace Ocaramba
     [SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable", Justification = "Driver is disposed on test end")]
     public partial class DriverContext
     {
-#if net47 || net45
-        private static readonly NLog.Logger Logger = LogManager.GetCurrentClassLogger();
-#endif
-#if netcoreapp3_1
-        private static readonly NLog.Logger Logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
-#endif
+        private static readonly ILogger Logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
         private readonly Collection<ErrorDetail> verifyMessages = new Collection<ErrorDetail>();
 
         /// <summary>
@@ -63,8 +58,6 @@ namespace Ocaramba
         /// The handle to driver.
         /// </value>
         private IWebDriver driver;
-
-        private EdgeDriverService serviceEdge;
 
         private ChromeDriverService serviceChrome;
 
@@ -76,22 +69,12 @@ namespace Ocaramba
         public event EventHandler<DriverOptionsSetEventArgs> DriverOptionsSet;
 
         /// <summary>
-        /// Gets instance of Performance PerformanceMeasures class.
-        /// </summary>
-        public PerformanceHelper PerformanceMeasures { get; } = new PerformanceHelper();
-
-        /// <summary>
         /// Gets or sets the test title.
         /// </summary>
         /// <value>
         /// The test title.
         /// </value>
         public string TestTitle { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Environment Browsers from App.config.
-        /// </summary>
-        public string CrossBrowserEnvironment { get; set; }
 
         /// <summary>
         /// Gets Sets Folder name for ScreenShot.
@@ -203,16 +186,10 @@ namespace Ocaramba
 
                 // retrieving settings from config file
                 NameValueCollection firefoxPreferences = new NameValueCollection();
-
                 NameValueCollection firefoxExtensions = new NameValueCollection();
-#if net47 || net45
-                firefoxPreferences = ConfigurationManager.GetSection("FirefoxPreferences") as NameValueCollection;
-                firefoxExtensions = ConfigurationManager.GetSection("FirefoxExtensions") as NameValueCollection;
-#endif
-#if netcoreapp3_1
+
                 firefoxPreferences = BaseConfiguration.GetNameValueCollectionFromAppsettings("FirefoxPreferences");
                 firefoxExtensions = BaseConfiguration.GetNameValueCollectionFromAppsettings("FirefoxExtensions");
-#endif
 
                 // preference for downloading files
                 options.SetPreference("browser.download.dir", this.DownloadFolder);
@@ -226,14 +203,6 @@ namespace Ocaramba
                 // disable Adobe Acrobat PDF preview plugin
                 options.SetPreference("plugin.scan.Acrobat", "99.0");
                 options.SetPreference("plugin.scan.plid.all", false);
-
-                options.UseLegacyImplementation = BaseConfiguration.FirefoxUseLegacyImplementation;
-
-                // set browser proxy for Firefox
-                if (!string.IsNullOrEmpty(BaseConfiguration.Proxy))
-                {
-                    options.Proxy = this.CurrentProxy();
-                }
 
                 // if there are any extensions
                 if (firefoxExtensions != null)
@@ -310,30 +279,15 @@ namespace Ocaramba
                 ChromeOptions options = new ChromeOptions();
 
                 // retrieving settings from config file
-                NameValueCollection chromePreferences = null;
-                NameValueCollection chromeExtensions = null;
-                NameValueCollection chromeArguments = null;
-#if net47 || net45
-                chromePreferences = ConfigurationManager.GetSection("ChromePreferences") as NameValueCollection;
-                chromeExtensions = ConfigurationManager.GetSection("ChromeExtensions") as NameValueCollection;
-                chromeArguments = ConfigurationManager.GetSection("ChromeArguments") as NameValueCollection;
-#endif
-#if netcoreapp3_1
-                chromePreferences = BaseConfiguration.GetNameValueCollectionFromAppsettings("ChromePreferences");
-                chromeExtensions = BaseConfiguration.GetNameValueCollectionFromAppsettings("ChromeExtensions");
-                chromeArguments = BaseConfiguration.GetNameValueCollectionFromAppsettings("chromeArguments");
-#endif
+                NameValueCollection chromePreferences = BaseConfiguration.GetNameValueCollectionFromAppsettings("ChromePreferences");
+                NameValueCollection chromeExtensions = BaseConfiguration.GetNameValueCollectionFromAppsettings("ChromeExtensions");
+                NameValueCollection chromeArguments = BaseConfiguration.GetNameValueCollectionFromAppsettings("chromeArguments");
+
                 options.AddUserProfilePreference("profile.default_content_settings.popups", 0);
                 options.AddUserProfilePreference("download.default_directory", this.DownloadFolder);
                 options.AddUserProfilePreference("download.prompt_for_download", false);
                 options.AddExcludedArgument("enable-automation");
                 options.AddAdditionalCapability("useAutomationExtension", false);
-
-                // set browser proxy for chrome
-                if (!string.IsNullOrEmpty(BaseConfiguration.Proxy))
-                {
-                    options.Proxy = this.CurrentProxy();
-                }
 
                 // if there are any extensions
                 if (chromeExtensions != null)
@@ -412,72 +366,6 @@ namespace Ocaramba
             }
         }
 
-        private InternetExplorerOptions InternetExplorerOptions
-        {
-            get
-            {
-                // retrieving settings from config file
-                NameValueCollection internetExplorerPreferences = null;
-#if net47 || net45
-                internetExplorerPreferences = ConfigurationManager.GetSection("InternetExplorerPreferences") as NameValueCollection;
-#endif
-#if netcoreapp3_1
-                internetExplorerPreferences = BaseConfiguration.GetNameValueCollectionFromAppsettings("InternetExplorerPreferences");
-#endif
-                var options = new InternetExplorerOptions
-                {
-                    EnsureCleanSession = true,
-                    IgnoreZoomLevel = true,
-                };
-
-                // set browser proxy for IE
-                if (!string.IsNullOrEmpty(BaseConfiguration.Proxy))
-                {
-                    options.Proxy = this.CurrentProxy();
-                }
-
-                // custom preferences
-                // if there are any settings
-                if (internetExplorerPreferences == null)
-                {
-                    return options;
-                }
-
-                this.GetInternetExplorerPreferences(internetExplorerPreferences, options);
-
-                return options;
-            }
-        }
-
-        private EdgeOptions EdgeOptions
-        {
-            get
-            {
-                var options = new EdgeOptions();
-
-                // set browser proxy for Edge
-                if (!string.IsNullOrEmpty(BaseConfiguration.Proxy))
-                {
-                    options.Proxy = this.CurrentProxy();
-                }
-
-                options.UseInPrivateBrowsing = true;
-
-                return options;
-            }
-        }
-
-        private SafariOptions SafariOptions
-        {
-            get
-            {
-                var options = new SafariOptions();
-                options.AddAdditionalCapability("cleanSession", true);
-
-                return options;
-            }
-        }
-
         /// <summary>
         /// Takes the screenshot.
         /// </summary>
@@ -513,58 +401,12 @@ namespace Ocaramba
             switch (BaseConfiguration.TestBrowser)
             {
                 case BrowserType.Firefox:
-                    if (!string.IsNullOrEmpty(BaseConfiguration.FirefoxBrowserExecutableLocation))
-                    {
-                        this.FirefoxOptions.BrowserExecutableLocation = BaseConfiguration.FirefoxBrowserExecutableLocation;
-                    }
 
-                    this.driver = string.IsNullOrEmpty(this.GetBrowserDriversFolder(BaseConfiguration.PathToFirefoxDriverDirectory)) ? new FirefoxDriver(this.SetDriverOptions(this.FirefoxOptions)) : new FirefoxDriver(this.GetBrowserDriversFolder(BaseConfiguration.PathToFirefoxDriverDirectory), this.SetDriverOptions(this.FirefoxOptions));
-                    break;
-                case BrowserType.InternetExplorer:
-                case BrowserType.IE:
-                    this.driver = string.IsNullOrEmpty(this.GetBrowserDriversFolder(BaseConfiguration.PathToInternetExplorerDriverDirectory)) ? new InternetExplorerDriver(this.SetDriverOptions(this.InternetExplorerOptions)) : new InternetExplorerDriver(this.GetBrowserDriversFolder(this.GetBrowserDriversFolder(BaseConfiguration.PathToInternetExplorerDriverDirectory)), this.SetDriverOptions(this.InternetExplorerOptions));
+                    this.driver = new FirefoxDriver(this.SetDriverOptions(this.FirefoxOptions));
                     break;
                 case BrowserType.Chrome:
-                    if (!string.IsNullOrEmpty(BaseConfiguration.ChromeBrowserExecutableLocation))
-                    {
-                        this.ChromeOptions.BinaryLocation = BaseConfiguration.ChromeBrowserExecutableLocation;
-                    }
-
                     this.serviceChrome = ChromeDriverService.CreateDefaultService();
-                    this.serviceChrome.LogPath = BaseConfiguration.PathToChromeDriverLog;
-                    this.serviceChrome.EnableVerboseLogging = BaseConfiguration.EnableVerboseLoggingChrome;
-                    this.driver = string.IsNullOrEmpty(this.GetBrowserDriversFolder(BaseConfiguration.PathToChromeDriverDirectory)) ? new ChromeDriver(this.serviceChrome, this.SetDriverOptions(this.ChromeOptions)) : new ChromeDriver(this.GetBrowserDriversFolder(BaseConfiguration.PathToChromeDriverDirectory), this.SetDriverOptions(this.ChromeOptions));
-                    break;
-                case BrowserType.Safari:
-                    this.driver = new SafariDriver(this.SetDriverOptions(this.SafariOptions));
-                    this.CheckIfProxySetForSafari();
-                    break;
-                case BrowserType.RemoteWebDriver:
-                    this.SetupRemoteWebDriver();
-                    break;
-                case BrowserType.Edge:
-                    this.driver = new EdgeDriver(EdgeDriverService.CreateDefaultService(this.GetBrowserDriversFolder(BaseConfiguration.PathToEdgeDriverDirectory), "MicrosoftWebDriver.exe", 52296), this.SetDriverOptions(this.EdgeOptions));
-                    break;
-                case BrowserType.EdgeChrominium:
-                    this.serviceEdge = EdgeDriverService.CreateDefaultService(BaseConfiguration.PathToEdgeChrominumDriverDirectory, @"msedgedriver.exe");
-                    this.serviceEdge.UseVerboseLogging = true;
-                    this.serviceEdge.UseSpecCompliantProtocol = true;
-
-                    this.serviceEdge.Start();
-
-#pragma warning disable CS0618 // Type or member is obsolete
-                    var caps = new DesiredCapabilities(new Dictionary<string, object>()
-                    {
-                        {
-                            "ms:edgeOptions", new Dictionary<string, object>()
-                         {
-                            { "binary", BaseConfiguration.EdgeChrominiumBrowserExecutableLocation },
-                         }
-                        },
-                    });
-#pragma warning restore CS0618 // Type or member is obsolete
-
-                    this.driver = new RemoteWebDriver(this.serviceEdge.ServiceUrl, caps);
+                    this.driver = new ChromeDriver(this.serviceChrome, this.SetDriverOptions(this.ChromeOptions));
                     break;
                 default:
                     throw new NotSupportedException(
@@ -598,11 +440,6 @@ namespace Ocaramba
         /// </summary>
         public void Stop()
         {
-            if (this.serviceEdge != null)
-            {
-                this.serviceEdge.Dispose();
-            }
-
             if (this.serviceChrome != null)
             {
                 this.serviceChrome.Dispose();
@@ -611,58 +448,6 @@ namespace Ocaramba
             if (this.driver != null)
             {
                 this.driver.Quit();
-            }
-        }
-
-        private void SetupRemoteWebDriver()
-        {
-            NameValueCollection driverCapabilitiesConf = new NameValueCollection();
-            NameValueCollection settings = new NameValueCollection();
-#if net47 || net45
-            driverCapabilitiesConf = ConfigurationManager.GetSection("DriverCapabilities") as NameValueCollection;
-            settings = ConfigurationManager.GetSection("environments/" + this.CrossBrowserEnvironment) as NameValueCollection;
-#endif
-#if netcoreapp3_1
-            driverCapabilitiesConf = BaseConfiguration.GetNameValueCollectionFromAppsettings("DriverCapabilities");
-            settings = BaseConfiguration.GetNameValueCollectionFromAppsettings("environments:" + this.CrossBrowserEnvironment);
-#endif
-            var browserType = this.GetBrowserTypeForRemoteDriver(settings);
-            switch (browserType)
-            {
-                case BrowserType.Firefox:
-                    FirefoxOptions firefoxOptions = new FirefoxOptions();
-                    firefoxOptions.Proxy = this.CurrentProxy();
-                    this.SetRemoteDriverBrowserOptions(driverCapabilitiesConf, settings, firefoxOptions);
-                    this.driver = new RemoteWebDriver(BaseConfiguration.RemoteWebDriverHub, this.SetDriverOptions(firefoxOptions).ToCapabilities());
-                    break;
-                case BrowserType.Android:
-                case BrowserType.Chrome:
-                    ChromeOptions chromeOptions = new ChromeOptions();
-                    chromeOptions.Proxy = this.CurrentProxy();
-                    this.SetRemoteDriverBrowserOptions(driverCapabilitiesConf, settings, chromeOptions);
-                    this.driver = new RemoteWebDriver(BaseConfiguration.RemoteWebDriverHub, this.SetDriverOptions(chromeOptions).ToCapabilities());
-                    break;
-                case BrowserType.Iphone:
-                case BrowserType.Safari:
-                    SafariOptions safariOptions = new SafariOptions();
-                    this.SetRemoteDriverOptions(driverCapabilitiesConf, settings, safariOptions);
-                    this.driver = new RemoteWebDriver(BaseConfiguration.RemoteWebDriverHub, this.SetDriverOptions(safariOptions).ToCapabilities());
-                    break;
-                case BrowserType.Edge:
-                    EdgeOptions egEdgeOptions = new EdgeOptions();
-                    this.SetRemoteDriverOptions(driverCapabilitiesConf, settings, egEdgeOptions);
-                    this.driver = new RemoteWebDriver(BaseConfiguration.RemoteWebDriverHub, this.SetDriverOptions(egEdgeOptions).ToCapabilities());
-                    break;
-                case BrowserType.IE:
-                case BrowserType.InternetExplorer:
-                    InternetExplorerOptions internetExplorerOptions = new InternetExplorerOptions();
-                    internetExplorerOptions.Proxy = this.CurrentProxy();
-                    this.SetRemoteDriverBrowserOptions(driverCapabilitiesConf, settings, internetExplorerOptions);
-                    this.driver = new RemoteWebDriver(BaseConfiguration.RemoteWebDriverHub, this.SetDriverOptions(internetExplorerOptions).ToCapabilities());
-                    break;
-                default:
-                    throw new NotSupportedException(
-                        string.Format(CultureInfo.CurrentCulture, "Driver {0} is not supported", this.CrossBrowserEnvironment));
             }
         }
     }

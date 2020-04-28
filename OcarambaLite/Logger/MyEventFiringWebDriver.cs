@@ -32,12 +32,7 @@ namespace Ocaramba.Logger
     /// </summary>
     public class MyEventFiringWebDriver : EventFiringWebDriver
     {
-#if net47 || net45
-        private static readonly NLog.Logger Logger = LogManager.GetCurrentClassLogger();
-#endif
-#if netcoreapp3_1
-        private static readonly NLog.Logger Logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
-#endif
+        private static readonly ILogger Logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MyEventFiringWebDriver"/> class.

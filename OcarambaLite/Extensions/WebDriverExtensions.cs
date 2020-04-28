@@ -27,7 +27,6 @@ namespace Ocaramba.Extensions
     using NLog;
     using Ocaramba;
     using Ocaramba.Types;
-    using Ocaramba.WebElements;
     using OpenQA.Selenium;
     using OpenQA.Selenium.Interactions;
     using OpenQA.Selenium.Support.UI;
@@ -37,25 +36,7 @@ namespace Ocaramba.Extensions
     /// </summary>
     public static class WebDriverExtensions
     {
-#if net47 || net45
-        private static readonly NLog.Logger Logger = LogManager.GetCurrentClassLogger();
-#endif
-#if netcoreapp3_1
-        private static readonly NLog.Logger Logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
-#endif
-
-        /// <summary>
-        /// Handler for simple use JavaScriptAlert.
-        /// </summary>
-        /// <example>Sample confirmation for java script alert: <code>
-        /// this.Driver.JavaScriptAlert().ConfirmJavaScriptAlert();
-        /// </code></example>
-        /// <param name="webDriver">The web driver.</param>
-        /// <returns>JavaScriptAlert Handle.</returns>
-        public static JavaScriptAlert JavaScriptAlert(this IWebDriver webDriver)
-        {
-            return new JavaScriptAlert(webDriver);
-        }
+        private static readonly ILogger Logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
 
         /// <summary>
         /// Navigates to.
@@ -65,8 +46,6 @@ namespace Ocaramba.Extensions
         public static void NavigateTo(this IWebDriver webDriver, Uri url)
         {
             webDriver.Navigate().GoToUrl(url);
-
-            ApproveCertificateForInternetExplorer(webDriver);
         }
 
         /// <summary>
@@ -358,18 +337,6 @@ namespace Ocaramba.Extensions
                     "} simulateHTML5DragAndDrop(arguments[0], arguments[1])";
 
             ((IJavaScriptExecutor)webDriver).ExecuteScript(script, source, destination);
-        }
-
-        /// <summary>
-        /// Approves the trust certificate for internet explorer.
-        /// </summary>
-        /// <param name="webDriver">The web driver.</param>
-        private static void ApproveCertificateForInternetExplorer(this IWebDriver webDriver)
-        {
-            if ((BaseConfiguration.TestBrowser.Equals(BrowserType.InternetExplorer) || BaseConfiguration.TestBrowser.Equals(BrowserType.IE)) && webDriver.Title.Contains("Certificate"))
-            {
-                webDriver.FindElement(By.Id("overridelink")).JavaScriptClick();
-            }
         }
     }
 }
