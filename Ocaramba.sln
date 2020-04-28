@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29728.190
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{844D0B1B-1209-4D4F-BAD4-DA68980CB4DC}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ocaramba.Tests.PageObjects", "Ocaramba.Tests.PageObjects\Ocaramba.Tests.PageObjects.csproj", "{FDEF8055-650C-42CD-92F0-599AD0F8A331}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A3E0113A-9AB8-4294-B1E3-EFB17614972A} = {A3E0113A-9AB8-4294-B1E3-EFB17614972A}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ocaramba.Tests.Features", "Ocaramba.Tests.Features\Ocaramba.Tests.Features.csproj", "{110A82E1-F2A1-4BA9-B808-D2FBE2EAD94A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OcarambaLite", "OcarambaLite\OcarambaLite.csproj", "{A3E0113A-9AB8-4294-B1E3-EFB17614972A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FDEF8055-650C-42CD-92F0-599AD0F8A331}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDEF8055-650C-42CD-92F0-599AD0F8A331}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDEF8055-650C-42CD-92F0-599AD0F8A331}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDEF8055-650C-42CD-92F0-599AD0F8A331}.Release|Any CPU.Build.0 = Release|Any CPU
+		{110A82E1-F2A1-4BA9-B808-D2FBE2EAD94A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{110A82E1-F2A1-4BA9-B808-D2FBE2EAD94A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{110A82E1-F2A1-4BA9-B808-D2FBE2EAD94A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{110A82E1-F2A1-4BA9-B808-D2FBE2EAD94A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3E0113A-9AB8-4294-B1E3-EFB17614972A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3E0113A-9AB8-4294-B1E3-EFB17614972A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3E0113A-9AB8-4294-B1E3-EFB17614972A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3E0113A-9AB8-4294-B1E3-EFB17614972A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DA1E697C-541D-48D9-B421-5BECA137B41E}
+	EndGlobalSection
+EndGlobal

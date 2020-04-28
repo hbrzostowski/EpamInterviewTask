@@ -1,0 +1,10 @@
+/.vs/Ocaramba/v15
+/*.user
+/**/*.nupkg
+/**/bin/**/*.*
+/**/obj/**/*.*
+/packages/**/*.*
+/.vs/config/applicationhost.config
+/Ocaramba.Documentation/Help
+/Ocaramba/Ocaramba.xml
+/.vs
